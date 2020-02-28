@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>成员管理</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="/static/css/font.css">
+    <link rel="stylesheet" href="/static/css/weadmin.css">
+    <link rel="stylesheet" href="/static/css/manager.css">
+    <script type="text/javascript" src="/static/layui/layui.js"></script>
+</head>
+<body>
+<div class="setmanager">
+    <div class="layui-collapse collapsediverbox" lay-accordion="">
+        <div class="layui-colla-item collapsediver">
+                <h2 class="layui-colla-title">成绩录入</h2>
+            <div class="layui-colla-content">
+                <div class="uploadbox">
+                    <p>报表格式为.xlsx</p>
+                    <div class="layui-upload-drag" id="test10">
+                        <i class="layui-icon"></i>
+                        <p>点击上传，或将文件拖拽到此处</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="layui-colla-item collapsediver">
+            <h2 class="layui-colla-title">成绩查询</h2>
+            <div class="layui-colla-content">
+                <div class="layui-form">
+                    <div class="layui-form-item width-class">
+                        <label class="layui-form-label">请选择年级</label>
+                        <div class="layui-input-block">
+                            <select name="class" lay-verify="required">
+                                <option value="-1"></option>
+                                {{range $index, $elem := .clazz}}
+                                    <option value={{$elem.Id}}>{{$elem.ClazzName}}</option>
+                                {{end}}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="layui-form-item width-class">
+                        <label class="layui-form-label">请输入学号</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="school" required  lay-verify="school" placeholder="请输入学号" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-form-item width-class">
+                        <div class="layui-input-block">
+                            <button class="layui-btn" lay-submit lay-filter="formDemo">搜索</button>
+                        </div>
+                    </div>
+                </div>
+                <table class="layui-hide" id="demo" lay-filter="test"></table>
+                <script type="text/html" id="barDemo">
+                    <a class="layui-btn layui-btn-primary layui-btn-xs" lay-event="detail">查看</a>
+                    <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+                    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+                </script>
+            </div>
+        </div>
+    </div>
+</div>
+<style>
+    .width-class{
+        width: 350px;
+        display: inline-block;
+        margin-right: 20px;
+    }
+</style>
+<script>
+    layui.use(['form','upload','element', 'layer','table'], function(){
+        var element = layui.element;
+        var layer = layui.layer;
+        var form = layui.form;
+        var $ = layui.jquery
+                ,upload = layui.upload
+                ,table = layui.table; //表格
+
+        //监听折叠
+        element.on('collapse(test)', function(data){
+            layer.msg('展开状态：'+ data.show);
+        });
+
+        //拖拽上传
+        upload.render({
+            elem: '#test10'
+            ,url: '/back/achievement/addscore'
+            ,accept: 'file'
+            ,ext: '.xls|.xlsx'
+            ,done: function(res){
+                console.log(res.message)
+                if (res.name == 1){
+                    layer.msg(res.message);
+                } else {
+                    layer.msg(res.message);
+                }
+            }
+            ,error: function(error){
+                console.log(error)
+            }
+        });
+
+        element.on('tab(demo)', function(data){
+            layer.tips('切换了 '+ data.index +'：'+ this.innerHTML, this, {
+                tips: 1
+            });
+        });
+
+        //执行一个 table 实例
+        select(-1,"");
+        function select(classall,schoolall){
+            table.render({
+                elem: '#demo'
+                ,height: 490
+                ,url: '/back/achievement/selectallscore?class='+classall+'&school='+schoolall //数据接口
+                ,title: '用户表'
+                ,page: true //开启分页
+                ,toolbar: 'default' //开启工具栏，此处显示默认图标，可以自定义模板，详见文档
+                ,totalRow: true //开启合计行
+                ,cols: [[ //表头
+                    {type: 'checkbox', fixed: 'left'}
+                    ,{field: 'Number', title: '学号', width:120, sort: true, fixed: 'left'}
+                    ,{field: 'Name', title: '姓名', width:80}
+                    ,{field: 'Sex', title: '性别', width: 80}
+                    ,{field: 'ClazzName', title: '班级', width:120}
+                    ,{field: 'GradeName', title: '年级', width: 150}
+                    ,{field: 'CourseName', title: '学科', width:200}
+                    ,{field: 'Score', title: '成绩', width: 120}
+                    ,{field: 'Time', title: '时间', width: 270}
+                    ,{field: 'ExamName', title: '考试', width: 170, sort: true}
+                ]]
+            });
+        }
+
+        //监听头工具栏事件
+        table.on('toolbar(test)', function(obj){
+            var checkStatus = table.checkStatus(obj.config.id)
+                    ,data = checkStatus.data; //获取选中的数据
+            switch(obj.event){
+                case 'add':
+                    layer.msg('添加');
+                    break;
+                case 'update':
+                    if(data.length === 0){
+                        layer.msg('请选择一行');
+                    } else if(data.length > 1){
+                        layer.msg('只能同时编辑一个');
+                    } else {
+                        layer.alert('编辑 [id]：'+ checkStatus.data[0].id);
+                    }
+                    break;
+                case 'delete':
+                    if(data.length === 0){
+                        layer.msg('请选择一行');
+                    } else {
+                        layer.msg('删除');
+                    }
+                    break;
+            };
+        });
+
+        //监听行工具事件
+        table.on('tool(test)', function(obj){ //注：tool 是工具条事件名，test 是 table 原始容器的属性 lay-filter="对应的值"
+            var data = obj.data //获得当前行数据
+                    ,layEvent = obj.event; //获得 lay-event 对应的值
+            if(layEvent === 'detail'){
+                layer.msg('查看操作');
+            } else if(layEvent === 'del'){
+                layer.confirm('真的删除行么', function(index){
+                    obj.del(); //删除对应行（tr）的DOM结构
+                    layer.close(index);
+                    //向服务端发送删除指令
+                });
+            } else if(layEvent === 'edit'){
+                layer.msg('编辑操作');
+            }
+        });
+        form.verify({
+            school: function (value) {
+                if (value != ""){
+                    if (value.length != 11 || isNaN(value)) {
+                        return '请输正确的学号';
+                    }
+                }
+            },
+        });
+        form.on('submit(formDemo)', function(data){
+            select(data.field.class,data.field.school);
+        });
+    });
+</script>
+</body>
+</html>

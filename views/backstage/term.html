@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>学期管理</title>
+    <link rel="stylesheet" href="/static/css/font.css">
+    <link rel="stylesheet" href="/static/css/weadmin.css">
+    <link rel="stylesheet" href="/static/css/information.css">
+    <script type="text/javascript" src="/static/layui/layui.js"></script>
+</head>
+<body>
+<div class="fortermbox">
+    <div class="layui-form forterm">
+        <div class="layui-form-item">
+            <label class="layui-form-label">添加学期</label>
+            <div class="layui-input-inline">
+                <select name="year" lay-verify="year">
+                    <option value="">请选择年份</option>
+                    <option value="2018年-2019年">2018年-2019年</option>
+                    <option value="2017年-2018年">2017年-2018年</option>
+                    <option value="2016年-2017年">2016年-2017年</option>
+                </select>
+            </div>
+            <div class="layui-input-inline">
+                <select name="term" lay-verify="term">
+                    <option value="">请选择学期</option>
+                    <option value="第一学期">第一学期</option>
+                    <option value="第二学期">第二学期</option>
+                </select>
+            </div>
+            <div class="layui-input-inline">
+                <select name="type" lay-verify="type">
+                    <option value="">请选择类型</option>
+                    <option value="期中考试">期中考试</option>
+                    <option value="期末考试">期末考试</option>
+                </select>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-input-block">
+                <button class="layui-btn" lay-submit type="submit" lay-filter="demo">添加</button>
+            </div>
+        </div>
+    </div>
+
+    <table class="layui-table">
+        <span class="termformlist">学期列表</span>
+        <colgroup>
+            <col width="30%">
+            <col>
+        </colgroup>
+        <thead>
+        <tr>
+            <th>学期</th>
+            <th>类型</th>
+        </tr>
+        </thead>
+        <tbody>
+            {{range $index, $elem := .item}}
+            <tr>
+                <td>{{$elem.Time}}</td>
+                <td>{{$elem.ExamName}}</td>
+            </tr>
+            {{end}}
+        </tbody>
+    </table>
+    <span>共{{ .number }}条记录</span>
+</div>
+
+</body>
+<script>
+    layui.use(['form', 'layedit', 'laydate'], function () {
+        var form = layui.form
+                , layer = layui.layer
+                , layedit = layui.layedit
+                , laydate = layui.laydate
+                , $ = layui.jquery;
+        //自定义验证规则
+        form.verify({
+            year: function (value) {
+                if (value.length == "") {
+                    return '请选择年份';
+                }
+            },
+            term: function (value) {
+                if (value.length == "") {
+                    return '请选择学期';
+                }
+            },
+            type: function (value) {
+                if (value.length == "") {
+                    return '请选择考试类型';
+                }
+            }
+
+        });
+        //监听提交
+        form.on('submit(demo)', function (data) {
+            console.log("0000000")
+            let str = data.field.year + data.field.term;
+            $.ajax({
+                type: "POST",
+                url: '/back/achievement/addexam',
+                data: {
+                    time: str,
+                    type: data.field.type
+                },
+                success: function (res) {
+                    if (res.date == 1) {
+                        layer.msg(res.message);
+                    }else {
+                        window.location.href="  "
+                    }
+                },
+                error: function (data) {
+                    console.log(data)
+                }
+            });
+            return false;
+        });
+    });
+</script>
+</html>
+

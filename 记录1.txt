@@ -1,0 +1,1 @@
+source D:/goworkspace/opensource/achievement/sql/ssms.sql

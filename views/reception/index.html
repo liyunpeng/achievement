@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>成绩管理系统</title>
+    <meta charset="UTF-8">
+    <meta name="keywords" content="">
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1, user-scalable=0"
+          name="viewport">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="black" name="apple-mobile-web-app-status-bar-style">
+    <meta content="telephone=no" name="format-detection">
+    <meta name="_xsrf" content="{{.xsrf_token}}"/>
+    <link rel="stylesheet" href="/static/css/style.css"/>
+    <!-- 提示升级高级浏览器操作 -->
+    <style>
+        .ie-list a {
+            margin-right: 80px;
+        }
+
+        #particles-js {
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: 50% 50%;
+            background-repeat: no-repeat;
+        }
+    </style>
+</head>
+<body class="body_bj">
+<div id="particles-js">
+    <div class="login layui-form">
+    {{/*<form onsubmit="return checkLength()">*/}}
+        <div class="logo">
+            <img src="/static/img/cat.jpeg" alt="">
+        </div>
+        <ul class="login-list">
+            <li><input type="text" id="school" autocomplete="off" placeholder="请输入学号" required
+                       lay-verify="required|school" class="layui-input"></li>
+            <li><input type="password" id="password" autocomplete="off" placeholder="请输入密码" required
+                       lay-verify="required|password" class="layui-input"></li>
+            <li><input type="text" id="captcha" autocomplete="off" placeholder="请输入验证码" required
+                       lay-verify="required|captcha" class="layui-input"><span class="yzm2">{{ create_captcha }}</span>
+            </li>
+            <li>
+                <button class="btn" lay-submit lay-filter="login" type="submit">登 录</button>
+            </li>
+            <a href="https://github.com/login/oauth/authorize?client_id=e2cd16bc8436ab104785&scope=user:email">github</a>
+            <li class="tar"><a href="/reception/forget">忘记密码？</a></li>
+        </ul>
+    {{/*</form>*/}}
+    </div>
+</div>
+
+<script type="text/javascript" src="/static/layui/layui.js"></script>
+<script type="text/javascript" src="/static/js/particles.min.js"></script>
+<script>
+    layui.use(['form', 'jquery', 'layer'], function () {
+        let $ = layui.jquery,
+                layer = layui.layer,
+                form = layui.form;
+        var ajax = $.ajax;
+        $.extend({
+            ajax: function (url, options) {
+                if (typeof url === 'object') {
+                    options = url;
+                    url = undefined;
+                }
+                options = options || {};
+                url = options.url;
+                var xsrftoken = $('meta[name=_xsrf]').attr('content');
+                var headers = options.headers || {};
+                var domain = document.domain.replace(/\./ig, '\\.');
+                if (!/^(http:|https:).*/.test(url) || eval('/^(http:|https:)\\/\\/(.+\\.)*' + domain + '.*/').test(url)) {
+                    headers = $.extend(headers, {'X-Xsrftoken': xsrftoken});
+                }
+                options.headers = headers;
+                return ajax(url, options);
+            }
+        });
+        form.verify({
+            school: function (value) {
+                if (value.length != 11 || isNaN(value)) {
+                    return '请输入正确的学号';
+                }
+            },
+            password: function (value) {
+                if (!/^[a-zA-Z0-9_-]{4,16}$/.test(value)) {
+                    return '字母或者数字开头，区分大小写，最短4位最长16位';
+                }
+            },
+            captcha: function (value) {
+                if (value.length != 6) {
+                    return '请输入正确的验证码';
+                }
+            }
+        });
+
+        form.on('submit(login)', function (data) {
+            // console.log($(".captcha-img").attr("src").split("/")[2].split(".")[0]);
+            $.ajax({
+                type: "POST",
+                url: '/reception/login/judge',
+                data: {
+                    school: $('#school').val(),
+                    password: $('#password').val(),
+                    captcha: $('#captcha').val(),
+                    captchaId: $(".captcha-img").attr("src").split("/")[2].split(".")[0]
+                },
+                success: function (res) {
+                    console.log(res)
+                    switch (res.name) {
+                        case 0:
+                            layer.msg(res.message);
+                            break;
+                        case -1:
+                            layer.msg(res.message);
+                            break;
+                        case 1:
+                            window.location.href = "/reception/admin/information";
+                    }
+                },
+                error: function (data) {
+                    console.log(data)
+                }
+            });
+        });
+
+    });
+</script>
+<script>
+    particlesJS('particles-js',
+            {
+                "particles": {
+                    "number": {
+                        "value": 40,  //数量
+                        "density": {
+                            "enable": true,
+                            "value_area": 800
+                        }
+                    },
+                    "color": {
+                        "value": "#ffffff"
+                    },
+                    "shape": {
+                        "type": "circle",
+                        "stroke": {
+                            "width": 0,
+                            "color": "#000000"
+                        },
+                        "polygon": {
+                            "nb_sides": 5
+                        },
+                        "image": {
+                            "src": "img/github.svg",
+                            "width": 100,
+                            "height": 100
+                        }
+                    },
+                    "opacity": {
+                        "value": 0.3,
+                        "random": false,
+                        "anim": {
+                            "enable": false,
+                            "speed": 1,
+                            "opacity_min": 0.1,
+                            "sync": false
+                        }
+                    },
+                    "size": {
+                        "value": 3,
+                        "random": true,
+                        "anim": {
+                            "enable": false,
+                            "speed": 40,
+                            "size_min": 0.1,
+                            "sync": false
+                        }
+                    },
+                    "line_linked": {
+                        "enable": true,
+                        "distance": 150,
+                        "color": "#ffffff",
+                        "opacity": 0.4,
+                        "width": 1
+                    },
+                    "move": {
+                        "enable": true,
+                        "speed": 1,
+                        "direction": "none",
+                        "random": false,
+                        "straight": false,
+                        "out_mode": "out",
+                        "bounce": false,
+                        "attract": {
+                            "enable": false,
+                            "rotateX": 600,
+                            "rotateY": 1200
+                        }
+                    }
+                },
+                "interactivity": {
+                    "detect_on": "canvas",
+                    "events": {
+                        "onhover": {
+                            "enable": true,
+                            "mode": "grab"
+                        },
+                        "onclick": {
+                            "enable": false,
+                            "mode": "push"
+                        },
+                        "resize": true
+                    },
+                    "modes": {
+                        "grab": {
+                            "distance": 150,
+                            "line_linked": {
+                                "opacity": 1
+                            }
+                        },
+                        "bubble": {
+                            "distance": 400,
+                            "size": 40,
+                            "duration": 2,
+                            "opacity": 8,
+                            "speed": 3
+                        },
+                        "repulse": {
+                            "distance": 200,
+                            "duration": 0.4
+                        },
+                        "push": {
+                            "particles_nb": 4
+                        },
+                        "remove": {
+                            "particles_nb": 2
+                        }
+                    }
+                },
+                "retina_detect": false
+            }
+    );
+</script>
+
+</body>
+</html>

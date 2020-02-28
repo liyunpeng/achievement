@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>成员管理</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="/static/css/font.css">
+    <link rel="stylesheet" href="/static/css/weadmin.css">
+    <link rel="stylesheet" href="/static/css/manager.css">
+    <script type="text/javascript" src="/static/layui/layui.js"></script>
+</head>
+<body>
+    <div class="setmanager">
+        <div class="layui-collapse collapsediverbox" lay-accordion="">
+            <div class="layui-colla-item collapsediver">
+                <h2 class="layui-colla-title">报表录入</h2>
+                <div class="layui-colla-content">
+                    <div class="uploadbox">
+                        <p>报表格式为.xls或者.xlsx</p>
+                        <div class="layui-upload-drag" id="test10">
+                            <i class="layui-icon"></i>
+                            <p>点击上传，或将文件拖拽到此处</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-colla-item collapsediver">
+                <h2 class="layui-colla-title">学生信息录入</h2>
+                <div class="layui-colla-content layui-show">
+                    <div class="layui-form formdivborder" lay-filter="example">
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">学号</label>
+                            <div class="layui-input-block">
+                                <input type="text" name="number" lay-verify="required|number" autocomplete="off" placeholder="请输入学号" class="layui-input">
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">姓名</label>
+                            <div class="layui-input-block">
+                                <input type="text" name="name" lay-verify="required|name" autocomplete="off" placeholder="请输入姓名" class="layui-input">
+                            </div>
+                        </div>
+
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">班级信息</label>
+                            <div class="layui-input-inline">
+                                <select name="grade" lay-verify="grade">
+                                    <option value="">选择年级</option>
+                                    {{range $index, $elem := .grade}}
+                                    <option value={{$elem.Id}}>{{$elem.GradeName}}</option>
+                                    {{end}}
+                                </select>
+                            </div>
+                            <div class="layui-input-inline">
+                                <select name="class" lay-verify="class">
+                                    <option value="">选择班级</option>
+                                    {{range $index, $elem := .class}}
+                                        <option value={{$elem.Id}}>{{$elem.ClazzName}}</option>
+                                    {{end}}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">性别</label>
+                            <div class="layui-input-block">
+                                <input type="radio" name="sex" value="男" title="男" checked="" autocomplete="off" placeholder="请输入姓名" class="layui-input">
+                                <input type="radio" name="sex" value="女" title="女" autocomplete="off" placeholder="请输入姓名" class="layui-input">
+                            </div>
+                        </div>
+
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">手机号</label>
+                            <div class="layui-input-block">
+                                <input type="tel" name="phone" lay-verify="required|phone" autocomplete="off" placeholder="请输入手机号" class="layui-input">
+                            </div>
+                        </div>
+
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">QQ</label>
+                            <div class="layui-input-block">
+                                <input type="email" name="email" lay-verify="email" autocomplete="off" placeholder="请输入QQ账号" class="layui-input">
+                            </div>
+                        </div>
+
+                        <div class="layui-form-item">
+                            <label class="layui-form-label"></label>
+                            <div class="layui-input-block">
+                                <button class="layui-btn" lay-submit="" lay-filter="example">立即提交</button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        layui.use(['form','upload','element', 'layer'], function(){
+            var element = layui.element;
+            var layer = layui.layer;
+            var form = layui.form;
+            var $ = layui.jquery
+                    ,upload = layui.upload;
+
+            //监听折叠
+            element.on('collapse(test)', function(data){
+                layer.msg('展开状态：'+ data.show);
+            });
+
+            //自定义验证规则
+            form.verify({
+                number: function(value){
+                    var reg = /^\d{11,11}$/;
+                    if (!reg.test(value)) {
+                        return "学号格式错误，由11个数字组成";
+                    }
+                },
+                grade: function(value){
+                    if (value=="") {
+                        return "请选择年级";
+                    }
+                },
+                class: function (value) {
+                    if (value=="") {
+                        return "请选择班级名称";
+                    }
+                }
+            });
+
+            //监听提交
+            form.on('submit(example)', function(data) {
+                console.log(data.field)
+                $.ajax({
+                    type: "POST",
+                    url: '/back/achievement/addidiom',
+                    data: {
+                        number: data.field.number,
+                        name: data.field.name,
+                        sex: data.field.sex,
+                        phone: data.field.phone,
+                        qq: data.field.email,
+                        clazzid: data.field.class,
+                        gradeid: data.field.grade
+                    },
+                    success: function (res) {
+                        layer.msg(res.message);
+                    },
+                    error: function (data) {
+                        console.log(data)
+                    }
+                });
+                return false;
+            });
+
+            //拖拽上传
+            upload.render({
+                elem: '#test10'
+                ,url: '/back/achievement/excel'
+                ,accept: 'file'
+                ,ext: '.xls|.xlsx'
+                ,done: function(res){
+                    console.log(res.message)
+                    if (res.name == 1){
+                        layer.msg(res.message);
+                    } else {
+                        layer.msg(res.message);
+                    }
+                }
+                ,error: function(error){
+                    console.log(error)
+            }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="_xsrf" content="{{.xsrf_token}}" />
+    <title>成绩展示</title>
+    <script type="text/javascript" src="/static/layui/layui.js"></script>
+    <link rel="stylesheet" href="/static/layui/css/layui.css">
+</head>
+<body>
+<div class="information">
+    <div class="layui-form">
+        <div class="layui-form-item">
+            <table class="layui-table">
+                <tbody>
+                <tr>
+                    <td>ID</td>
+                    <td id="getID">{{ .user.Id }}</td>
+                </tr>
+                <tr>
+                    <td>学号</td>
+                    <td>{{ .user.Number }}</td>
+                </tr>
+                <tr>
+                    <td>姓名</td>
+                    <td>{{ .user.Name }}</td>
+                </tr>
+                <tr>
+                    <td>性别</td>
+                    <td>{{ .user.Sex }}</td>
+                </tr>
+                <tr>
+                    <td>电话</td>
+                    <td>{{ .user.Phone }}</td>
+                </tr>
+                <tr>
+                    <td>QQ</td>
+                    <td>{{ .user.Qq }}</td>
+                </tr>
+                <tr>
+                    <td>班级</td>
+                    <td>{{ .user.ClazzName }}</td>
+                </tr>
+                <tr>
+                    <td>年级</td>
+                    <td>{{ .user.GradeName }}</td>
+                </tr>
+                </tbody>
+            </table>
+            <label class="layui-form-label">选择框</label>
+            <div class="layui-input-block">
+                <select name="city" lay-verify="required" id="examid">
+                    <option value=""></option>
+                {{range $index, $elem := .exam}}
+                    <option value="{{$elem.Id}}">{{$elem.Time}}</option>
+                {{end}}
+                </select>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-input-block">
+                <button class="layui-btn" lay-submit lay-filter="formDemo">查询</button>
+            </div>
+        </div>
+        <div id="content">
+
+        </div>
+    </div>
+</div>
+
+
+<script>
+    //Demo
+    layui.use(['form','jquery'], function(){
+        var form = layui.form,
+            $=layui.jquery
+        //监听提交
+        form.on('submit(formDemo)', function(data){
+            $.ajax({
+                type: "POST",
+                url: '/reception/admin/getItem',
+                data: {
+                    id: $("#getID").html(),
+                    item: $("#examid").val(),
+                },
+                success: function (res) {
+                    // layer.msg(res)
+                    console.log(res)
+                    $("#content").children().remove();
+                    let html = "<table class='layui-table'>" +
+                            "                <tbody>";
+                    for (let i=0;i<res.msg.length;i++){
+                        html =html+"<tr>" +
+                                "<td>"+res.msg[i].Name+"</td>" +
+                                "<td>"+res.msg[i].Score+"</td>" +
+                                "</tr>"
+                    }
+                    html =html+ " </tbody>" +
+                            "            </table>";
+                    console.log(html)
+                    $("#content").append(html);
+                },
+                error: function (data) {
+                    console.log(data)
+                }
+            });
+            return false;
+        });
+    });
+</script>
+</body>
+<style>
+.information{
+    width: 595px;
+    height: 600px;
+    margin: auto;
+    margin-top: 20px;
+    margin-bottom: 30px;
+}
+</style>
+</html>

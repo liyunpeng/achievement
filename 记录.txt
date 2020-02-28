@@ -1,0 +1,44 @@
+1.
+$ go mod tidy
+go: finding github.com/Luxurioust/excelize v1.4.1
+go: downloading github.com/Luxurioust/excelize v1.4.1
+go: extracting github.com/Luxurioust/excelize v1.4.1
+go: achievement/backstage imports
+        github.com/Luxurioust/excelize: github.com/Luxurioust/excelize@v1.4.1: parsing go.mod:
+        module declares its path as: github.com/360EntSecGroup-Skylar/excelize
+                but was required as: github.com/Luxurioust/excelize
+解决办法：
+把代码中的import的github.com/Luxurioust/excelize
+用github.com/360EntSecGroup-Skylar/excelize替换
+
+原因： 依赖库的路径变了
+
+2.
+[user1@141-node ~]$ sudo docker run -p 3306:3306 --name mysql -e MYSQL_ROOT_PASSWORD=123456 -d mysql:5.7
+[sudo] user1 的密码：
+docker: Error response from daemon: Conflict.
+The container name "/mysql" is already in use by container
+"831da969d56205c38dffe2317e7111ea482dba935fd3cb23fa3455a25af2c609".
+You have to remove (or rename) that container to be able to reuse that name.
+See 'docker run --help'.
+831da969d56205c38dffe2317e7111ea482dba935fd3cb23fa3455a25af2c609 这个id是之前启动的容器的id
+
+看下docker当前运行的容器：
+[user1@141-node ~]$ docker container ls
+CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES
+docker当前并没有运行这个容器,
+
+
+[user1@141-node ~]$ sudo docker start 831da969d56205c38dffe2317e7111ea482dba935fd3cb23fa3455a25af2c609^C
+
+831da969d56205c38dffe2317e7111ea482dba935fd3cb23fa3455a25af2c609
+[user1@141-node ~]$ docker con
+config     container
+[user1@141-node ~]$ docker con
+config     container
+[user1@141-node ~]$ docker container ls
+CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS              PORTS                               NAMES
+831da969d562        mysql:5.7           "docker-entrypoint.s…"   24 hours ago        Up 16 seconds       0.0.0.0:3306->3306/tcp, 33060/tcp   mysql
+[user1@141-node ~]$
+
+待

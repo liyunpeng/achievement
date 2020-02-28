@@ -1,0 +1,41 @@
+.setmanager {
+    margin: 20px;
+}
+.managerbtn {
+    text-align: center;
+}
+
+
+
+.collapsediverbox {
+    border: none;
+}
+.collapsediver {
+    margin-bottom: 20px;
+    border: 1px solid #e6e6e6;
+}
+.formdivborder>div {
+    border-top: 1px solid #e6e6e6;
+    padding-top: 15px;
+    padding-right: 20px;
+}
+.formdivborder>div:first-child {
+    border-top: none;
+    padding-top: 0;
+}
+.layui-colla-content {
+    padding: 15px 0 0;
+}
+.uploadbox {
+    margin: 0 20px 20px;
+}
+.uploadbox>p {
+    margin-bottom: 15px;
+}
+.uploadbox>div {
+    width: 800px;
+    border: none;
+}
+.peoplebtn {
+    text-align: center;
+}
